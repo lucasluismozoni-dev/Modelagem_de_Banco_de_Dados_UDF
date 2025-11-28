@@ -1,0 +1,84 @@
+-- 1. CRIAÇÃO DO BANCO DE DADOS
+CREATE DATABASE RestauranteDB;
+USE RestauranteDB;
+
+-- 2. CRIAÇÃO DAS TABELAS INDEPENDENTES
+
+-- Tabela: CLIENTE
+CREATE TABLE CLIENTE (
+    id_cliente INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(20),
+    email VARCHAR(100)
+);
+
+-- Tabela: MESA
+CREATE TABLE MESA (
+    id_mesa INT PRIMARY KEY AUTO_INCREMENT,
+    numero INT UNIQUE NOT NULL,
+    capacidade INT NOT NULL,
+    localizacao VARCHAR(50)
+);
+
+-- Tabela: GARCOM
+CREATE TABLE GARCOM (
+    id_garcom INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(20),
+    turno ENUM('Manhã', 'Tarde', 'Noite')
+);
+
+-- Tabela: CATEGORIA
+CREATE TABLE CATEGORIA (
+    id_categoria INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(50) NOT NULL,
+    descricao VARCHAR(200)
+);
+
+-- 3. CRIAÇÃO DAS TABELAS COM CHAVES ESTRANGEIRAS SIMPLES
+
+-- Tabela: PRODUTO
+CREATE TABLE PRODUTO (
+    id_produto INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    preco DECIMAL(10, 2) NOT NULL,
+    id_categoria INT,
+    FOREIGN KEY (id_categoria) REFERENCES CATEGORIA(id_categoria)
+);
+
+-- Tabela: PEDIDO (Possui múltiplas FKs)
+CREATE TABLE PEDIDO (
+    id_pedido INT PRIMARY KEY AUTO_INCREMENT,
+    data_hora DATETIME NOT NULL,
+    status ENUM('Aberto', 'Fechado', 'Cancelado') NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
+    id_cliente INT,
+    id_mesa INT,
+    id_garcom INT,
+    FOREIGN KEY (id_cliente) REFERENCES CLIENTE(id_cliente),
+    FOREIGN KEY (id_mesa) REFERENCES MESA(id_mesa),
+    FOREIGN KEY (id_garcom) REFERENCES GARCOM(id_garcom)
+);
+
+-- Tabela: PAGAMENTO
+CREATE TABLE PAGAMENTO (
+    id_pagamento INT PRIMARY KEY AUTO_INCREMENT,
+    tipo ENUM('Dinheiro', 'Crédito', 'Débito', 'Pix') NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL,
+    id_pedido INT,
+    FOREIGN KEY (id_pedido) REFERENCES PEDIDO(id_pedido)
+);
+
+-- 4. CRIAÇÃO DA TABELA DE RELACIONAMENTO M:N
+
+-- Tabela: ITEM_PEDIDO
+CREATE TABLE ITEM_PEDIDO (
+    id_item INT PRIMARY KEY AUTO_INCREMENT,
+    quantidade INT NOT NULL,
+    preco_unitario DECIMAL(10, 2) NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    id_pedido INT,
+    id_produto INT,
+    FOREIGN KEY (id_pedido) REFERENCES PEDIDO(id_pedido),
+    FOREIGN KEY (id_produto) REFERENCES PRODUTO(id_produto)
+);
